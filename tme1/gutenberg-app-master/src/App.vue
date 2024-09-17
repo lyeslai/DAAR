@@ -10,6 +10,7 @@ body {
   height: 100vh;
   width: 100%;
   background: #efefef;
+  
 }
 #app {
   height: 100%;

@@ -1,4 +1,4 @@
- package DAAR.DAAR.regex;
+ package DAAR.tme1.RegEx;
 
 import java.util.Scanner;
 import java.util.ArrayList;

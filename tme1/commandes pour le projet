@@ -1,0 +1,8 @@
+installer npm
+installer vuejs
+sudo npm install -g yarn
+npm install --legacy-peer-deps
+npm install eslint@^8.0.0
+npm install --force
+npm run serve
+
