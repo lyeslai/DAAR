@@ -39,7 +39,7 @@ public class NFA {
         this.states = states;
     }
     
-
+//UTILISATION IA
     public String toDot() {
         StringBuilder sb = new StringBuilder();
         sb.append("digraph NFA {\n");

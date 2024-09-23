@@ -45,7 +45,7 @@ public class RegExToNFA {
         }
 
 
-
+//ANCIENNE FONCTION
 
     // private static NFA concat(NFA nfa, NFA nfa2) {
     //     nfa.states.forEach(s -> {
@@ -57,6 +57,8 @@ public class RegExToNFA {
     //     nfa.states.addAll(nfa2.states);
     //     return new NFA(nfa.startState, nfa2.states);
     // }
+
+//FONCTION GRACE A IA
 
     private static NFA concat(NFA nfa1, NFA nfa2) {
         Map<NFAState, NFAState> stateMap = new HashMap<>();
@@ -178,7 +180,7 @@ public class RegExToNFA {
         end.findarbre=true;
 
         start.addepsilontransition(nfa.startState);
-        end.addepsilontransition(end);
+        start.addepsilontransition(end);
 
         nfa.states.forEach(s -> {
             if (s.findarbre) {
