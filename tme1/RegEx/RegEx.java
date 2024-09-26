@@ -1,4 +1,4 @@
-//  package DAAR.tme1.RegEx;
+//  package DAAR.tme1.RegEx;j
 
 // import java.util.Scanner;
 // import java.util.ArrayList;
@@ -75,10 +75,14 @@
 
 package DAAR.tme1.RegEx;
 
+import java.util.HashSet;
 import java.util.Scanner;
+import java.util.Set;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.io.IOException;
+
+
 
 public class RegEx {
     // MACROS
@@ -98,7 +102,7 @@ public class RegEx {
 
     public static void main(String[] args) {
         System.out.println("Bienvenue dans le test du parser d'expressions régulières.");
-
+        Set<Character> alphabet= new HashSet<>();
         if (args.length >= 1) {
             regEx = args[0];
         } else {
@@ -127,6 +131,15 @@ public class RegEx {
                 Files.write(Paths.get("nfa.dot"), nfaDot.getBytes());
                 System.out.println(">> Fichier 'nfa.dot' généré pour le NFA.");
 
+                // Generer le DFA du NFA
+                regExTree.collectAlphabet(alphabet);
+                DFA  dfa= NFAToDFA.convertToDFA(nfa,alphabet);
+
+
+                 // Générer le fichier DOT pour le NFA
+                 String dfaDot = dfa.toDot();
+                 Files.write(Paths.get("dfa.dot"), dfaDot.getBytes());
+                 System.out.println(">> Fichier 'dfa.dot' généré pour le NFA.");
 
 
                 // Exécution des commandes dot pour générer les images (optionnel)
@@ -136,6 +149,12 @@ public class RegEx {
                     Process p1 = Runtime.getRuntime().exec("dot -Tpng nfa.dot -o nfa.png");
                     p1.waitFor();
                     System.out.println(">> Image 'nfa.png' générée pour le NFA.");
+
+                    @SuppressWarnings("deprecation")
+                    Process p2 = Runtime.getRuntime().exec("dot -Tpng dfa.dot -o dfa.png");
+                    p2.waitFor();
+                    System.out.println(">> Image 'nfa.png' générée pour le DFA.");
+
 
                 } catch (IOException | InterruptedException e) {
                     e.printStackTrace();

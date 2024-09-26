@@ -15,6 +15,18 @@ class RegExTree {
 
 
 
+    public void collectAlphabet(Set<Character> alphabet) {
+      // Si le nœud est un opérateur (CONCAT, ETOILE, ALTERN), on ne l'ajoute pas
+      if (root == RegEx.CONCAT || root == RegEx.ETOILE || root == RegEx.ALTERN || root == RegEx.DOT) {
+          // Parcourir les sous-arbres
+          for (RegExTree subtree : subTrees) {
+              subtree.collectAlphabet(alphabet);  // Récursivement collecter l'alphabet
+          }
+      } else {
+          // Sinon, c'est un caractère littéral (feuille), on l'ajoute à l'alphabet
+          alphabet.add((char) root);
+      }
+  }
     //FROM TREE TO PARENTHESIS
     public String toString() {
       if (subTrees.isEmpty()) return rootToString();
