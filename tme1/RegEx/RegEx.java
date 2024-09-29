@@ -1,88 +1,11 @@
-//  package DAAR.tme1.RegEx;j
-
-// import java.util.Scanner;
-// import java.util.ArrayList;
-// import java.nio.file.Files;
-// import java.nio.file.Paths;
-// import java.io.IOException;
-// import java.lang.Exception;
-
-// public class RegEx {
-//   //MACROS
-//   static final int CONCAT = 0xC04CA7;
-//   static final int ETOILE = 0xE7011E;
-//   static final int ALTERN = 0xA17E54;
-//   static final int PROTECTION = 0xBADDAD;
-
-//   static final int PARENTHESEOUVRANT = 0x16641664;
-//   static final int PARENTHESEFERMANT = 0x51515151;
-//   static final int DOT = 0xD07;
-  
-//   //REGEX
-//   private static String regEx;
-  
-//   //CONSTRUCTOR
-//   public RegEx(){}
-
-//   //MAIN
-//   public static void main(String arg[], RegExTree arbre) {
-//     System.out.println("Bienvenue dans le nouveau egrep");
-//     if (arg.length!=0) {
-//       regEx = arg[0];
-//     } else {
-//       Scanner scanner = new Scanner(System.in);
-//       System.out.print("  >> Please enter a regEx: ");
-//       regEx = scanner.next();
-//     }
-
-    
-//     if (regEx.length()<1) {
-//       System.err.println("  >> ERROR: empty regEx.");
-//     } else {
-//       try {
-//         RegExTree ret = RegExParser.parse(regEx);
-//         System.out.println("  >> Tree result: "+ret.toString()+".");
-
-//         NFA nfa = RegExToNFA.convert(arbre);
-//         System.out.println(">> NFA construit.");
-
-//         String nfaDot = nfa.toDot();
-//         Files.write(Paths.get("nfa.dot"), nfaDot.getBytes());
-//         System.out.println(">> Fichier 'nfa.dot' généré pour le NFA.");
-        
-//         try {
-//           // Générer l'image du NFA
-//           @SuppressWarnings("deprecation")
-//           Process p1 = Runtime.getRuntime().exec("dot -Tpng nfa.dot -o nfa.png");
-//           p1.waitFor();
-//           System.out.println(">> Image 'nfa.png' générée pour le NFA.");
-//         } catch (IOException | InterruptedException e) {
-//           e.printStackTrace();
-//       }
-        
-//       } catch (Exception e) {
-//         System.err.println("  >> ERROR: syntax error for regEx \""+regEx+"\".");
-//       }
-//     }
-
-//     System.out.println("  >> ...");
-//     System.out.println("  >> Parsing completed.");
-//     System.out.println("Goodbye Mr. Anderson.");
-//   }
-
-  
-// }
-
 package DAAR.tme1.RegEx;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.io.IOException;
-
-
 
 public class RegEx {
     // MACROS
@@ -90,7 +13,6 @@ public class RegEx {
     static final int ETOILE = 0xE7011E;
     static final int ALTERN = 0xA17E54;
     static final int PROTECTION = 0xBADDAD;
-
     static final int PARENTHESEOUVRANT = 0x16641664;
     static final int PARENTHESEFERMANT = 0x51515151;
     static final int DOT = 0xD07;
@@ -101,15 +23,18 @@ public class RegEx {
     public RegEx() {}
 
     public static void main(String[] args) {
-        System.out.println("Bienvenue dans le test du parser d'expressions régulières.");
-        Set<Character> alphabet= new HashSet<>();
-        if (args.length >= 1) {
-            regEx = args[0];
-        } else {
-            Scanner scanner = new Scanner(System.in);
-            System.out.print(">> Veuillez entrer une expression régulière: ");
-            regEx = scanner.nextLine();
-        }
+        // Utiliser un scanner pour obtenir les entrées utilisateur
+        Scanner scanner = new Scanner(System.in);
+
+        // Demander l'expression régulière
+        System.out.print(">> Veuillez entrer une expression régulière: ");
+        regEx = scanner.nextLine();
+
+        // Demander le chemin du fichier texte
+        System.out.print(">> Veuillez entrer le chemin vers le fichier texte: ");
+        String filePath = scanner.nextLine();
+
+        Set<Character> alphabet = new HashSet<>();
 
         System.out.println(">> Expression régulière : \"" + regEx + "\".");
         System.out.println(">> ...");
@@ -131,34 +56,43 @@ public class RegEx {
                 Files.write(Paths.get("nfa.dot"), nfaDot.getBytes());
                 System.out.println(">> Fichier 'nfa.dot' généré pour le NFA.");
 
-                // Generer le DFA du NFA
+                // Étape 3: Conversion en DFA
                 regExTree.collectAlphabet(alphabet);
-                DFA  dfa= NFAToDFA.convertToDFA(nfa,alphabet);
+                DFA dfa = NFAToDFA.convertToDFA(nfa, alphabet);
+                System.out.println(">> DFA construit.");
 
+                // Générer le fichier DOT pour le DFA
+                String dfaDot = dfa.toDot();
+                Files.write(Paths.get("dfa.dot"), dfaDot.getBytes());
+                System.out.println(">> Fichier 'dfa.dot' généré pour le DFA.");
 
-                 // Générer le fichier DOT pour le NFA
-                 String dfaDot = dfa.toDot();
-                 Files.write(Paths.get("dfa.dot"), dfaDot.getBytes());
-                 System.out.println(">> Fichier 'dfa.dot' généré pour le NFA.");
+                // Étape 4: Minimisation du DFA
+                DFA minimizedDFA = DFAMinimizer.minimize(dfa);
+                System.out.println(">> DFA minimisé.");
 
+                // Générer le fichier DOT pour le DFA minimisé
+                String minimizedDfaDot = minimizedDFA.toDot();
+                Files.write(Paths.get("minimized_dfa.dot"), minimizedDfaDot.getBytes());
+                System.out.println(">> Fichier 'minimized_dfa.dot' généré pour le DFA minimisé.");
 
                 // Exécution des commandes dot pour générer les images (optionnel)
                 try {
-                    // Générer l'image du NFA
-                    @SuppressWarnings("deprecation")
-                    Process p1 = Runtime.getRuntime().exec("dot -Tpng nfa.dot -o nfa.png");
-                    p1.waitFor();
+                    runDotCommand("nfa.dot", "nfa.png");
                     System.out.println(">> Image 'nfa.png' générée pour le NFA.");
 
-                    @SuppressWarnings("deprecation")
-                    Process p2 = Runtime.getRuntime().exec("dot -Tpng dfa.dot -o dfa.png");
-                    p2.waitFor();
-                    System.out.println(">> Image 'nfa.png' générée pour le DFA.");
+                    runDotCommand("dfa.dot", "dfa.png");
+                    System.out.println(">> Image 'dfa.png' générée pour le DFA.");
 
+                    runDotCommand("minimized_dfa.dot", "minimized_dfa.png");
+                    System.out.println(">> Image 'minimized_dfa.png' générée pour le DFA minimisé.");
 
                 } catch (IOException | InterruptedException e) {
+                    System.err.println("Erreur lors de la génération des images avec dot: " + e.getMessage());
                     e.printStackTrace();
                 }
+
+                // Étape 5: Lire le fichier texte et afficher les lignes correspondantes
+                matchLinesInFile(filePath, minimizedDFA);
 
             } catch (Exception e) {
                 System.err.println(">> ERREUR: erreur de syntaxe pour l'expression régulière \"" + regEx + "\".");
@@ -166,10 +100,50 @@ public class RegEx {
             }
         }
 
-        System.out.println(">> ...");
         System.out.println(">> Analyse terminée.");
         System.out.println("Au revoir.");
     }
+
+    // Fonction pour lire un fichier ligne par ligne et vérifier si une ligne correspond à l'expression régulière
+    private static void matchLinesInFile(String filePath, DFA dfa) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            int lineNumber = 0;
+            while ((line = reader.readLine()) != null) {
+                lineNumber++;
+                if (matches(line, dfa)) {
+                    System.out.println("Ligne " + lineNumber + " : " + line);
+                }
+            }
+        }
+    }
+
+    // Fonction pour vérifier si une chaîne correspond au DFA
+    private static boolean matches(String input, DFA dfa) {
+        DFAState currentState = dfa.startState;
+
+        // Parcourir chaque caractère de la chaîne d'entrée
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
+
+            // Transition vers l'état suivant
+            DFAState nextState = currentState.transitions.get(c);
+
+            if (nextState == null) {
+                return false; // Si aucune transition trouvée, retourner faux
+            }
+
+            currentState = nextState;
+        }
+
+        // Retourner vrai si on est dans un état final à la fin de la chaîne
+        return currentState.isFinal;
+    }
+
+    // Fonction pour exécuter la commande dot et générer l'image correspondante
+    private static void runDotCommand(String inputDot, String outputPng) throws IOException, InterruptedException {
+        @SuppressWarnings("deprecation")
+        Process process = Runtime.getRuntime().exec("dot -Tpng " + inputDot + " -o " + outputPng);
+        process.waitFor();
+    }
 }
-
-

@@ -1,0 +1,5 @@
+abc
+aac
+bbc
+ccc
+abbbb
