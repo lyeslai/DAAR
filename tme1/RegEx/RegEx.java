@@ -19,7 +19,7 @@ public class RegEx {
 
     // REGEX
     private static String regEx;
-
+    public static int nbLigne = 0; 
     public RegEx() {}
 
     public static void main(String[] args) {
@@ -104,41 +104,63 @@ public class RegEx {
         System.out.println("Au revoir.");
     }
 
-    // Fonction pour lire un fichier ligne par ligne et vérifier si une ligne correspond à l'expression régulière
-    private static void matchLinesInFile(String filePath, DFA dfa) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            int lineNumber = 0;
-            while ((line = reader.readLine()) != null) {
-                lineNumber++;
-                if (matches(line, dfa)) {
-                    System.out.println("Ligne " + lineNumber + " : " + line);
+// Fonction pour lire un fichier ligne par ligne et vérifier si une ligne contient des mots qui correspondent à l'expression régulière
+// Fonction pour lire un fichier ligne par ligne et vérifier si une sous-chaîne correspond à l'expression régulière
+private static void matchLinesInFile(String filePath, DFA dfa) throws IOException {
+    try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+        String line;
+        int lineNumber = 0;
+
+        while ((line = reader.readLine()) != null) {
+            lineNumber++;
+            
+            // Trouver toutes les sous-chaînes correspondantes dans la ligne
+            boolean foundMatch = false;
+            StringBuilder matchedSubstrings = new StringBuilder();
+
+            for (int i = 0; i < line.length(); i++) {
+                for (int j = i + 1; j <= line.length(); j++) {
+                    String substring = line.substring(i, j);
+                    if (matches(substring, dfa)) {
+                        matchedSubstrings.append(substring).append(" ");
+                        foundMatch = true;
+                    }
                 }
             }
-        }
-    }
 
-    // Fonction pour vérifier si une chaîne correspond au DFA
-    private static boolean matches(String input, DFA dfa) {
-        DFAState currentState = dfa.startState;
-
-        // Parcourir chaque caractère de la chaîne d'entrée
-        for (int i = 0; i < input.length(); i++) {
-            char c = input.charAt(i);
-
-            // Transition vers l'état suivant
-            DFAState nextState = currentState.transitions.get(c);
-
-            if (nextState == null) {
-                return false; // Si aucune transition trouvée, retourner faux
+            // Si des sous-chaînes correspondent, afficher la ligne avec les sous-chaînes correspondantes
+            if (foundMatch) {
+                System.out.println("Ligne " + lineNumber + " : " + line);
+                System.out.println("Sous-chaînes correspondantes : " + matchedSubstrings.toString());
             }
+        }
+    } catch (Error e) {
+        System.out.println("message d'erreur : " + e.getMessage());
+    }
+}
 
-            currentState = nextState;
+// Fonction pour vérifier si une sous-chaîne correspond au DFA
+private static boolean matches(String input, DFA dfa) {
+    DFAState currentState = dfa.startState;
+
+    // Parcourir chaque caractère de la sous-chaîne
+    for (int i = 0; i < input.length(); i++) {
+        char c = input.charAt(i);
+
+        // Transition vers l'état suivant
+        DFAState nextState = currentState.transitions.get(c);
+
+        if (nextState == null) {
+            return false; // Si aucune transition trouvée, retourner faux
         }
 
-        // Retourner vrai si on est dans un état final à la fin de la chaîne
-        return currentState.isFinal;
+        currentState = nextState;
     }
+
+    // Retourner vrai si on est dans un état final à la fin de la sous-chaîne
+    return currentState.isFinal;
+}
+
 
     // Fonction pour exécuter la commande dot et générer l'image correspondante
     private static void runDotCommand(String inputDot, String outputPng) throws IOException, InterruptedException {
