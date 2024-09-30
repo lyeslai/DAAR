@@ -35,7 +35,7 @@ public class Kmp {
     }
 
     // Prints occurrences of pat in txt
-    static List<Integer> KMPSearch(String pat, String txt)
+    public static List<Integer> KMPSearch(String pat, String txt)
     {
         int M = pat.length();
         int N = txt.length();
@@ -73,6 +73,7 @@ public class Kmp {
         return result;
     }
 
+   /* 
     // Driver code
     public static void main(String[] args)
     {
@@ -85,6 +86,6 @@ public class Kmp {
         for (int index : result) {
             System.out.print(index + " ");
         }
-    }
+    }*/
 }
 
