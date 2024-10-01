@@ -2,8 +2,6 @@ package DAAR.tme1.RegEx;
 
 import java.util.*;
 
-import javax.crypto.KEMSpi;
-
 import DAAR.tme2.Kmp;
 
 import java.io.*;
