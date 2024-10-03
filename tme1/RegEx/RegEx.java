@@ -20,6 +20,9 @@ public class RegEx {
     // REGEX
     private static String regEx;
     public static int nbLigne = 0; 
+    static long endTime ; 
+    static long startTime;
+
     public RegEx() {}
 
     public static void main(String[] args) {
@@ -43,6 +46,8 @@ public class RegEx {
             System.err.println(">> ERREUR: expression régulière vide.");
         } else {
             try {
+                 startTime = System.nanoTime();
+                
                 // Étape 1: Analyse syntaxique
                 RegExTree regExTree = RegExParser.parse(regEx);
                 System.out.println(">> Arbre syntaxique construit: " + regExTree.toString() + ".");
@@ -93,6 +98,7 @@ public class RegEx {
 
                 // Étape 5: Lire le fichier texte et afficher les lignes correspondantes
                 matchLinesInFile(filePath, minimizedDFA);
+                 endTime = System.nanoTime(); 
 
             } catch (Exception e) {
                 System.err.println(">> ERREUR: erreur de syntaxe pour l'expression régulière \"" + regEx + "\".");
@@ -102,6 +108,8 @@ public class RegEx {
 
         System.out.println(">> Analyse terminée.");
         System.out.println("Au revoir.");
+
+        System.out.println("temps d'execution :" + (endTime - startTime));
     }
 
 // Fonction pour lire un fichier ligne par ligne et vérifier si une ligne contient des mots qui correspondent à l'expression régulière
@@ -162,10 +170,13 @@ private static boolean matches(String input, DFA dfa) {
 }
 
 
+
     // Fonction pour exécuter la commande dot et générer l'image correspondante
     private static void runDotCommand(String inputDot, String outputPng) throws IOException, InterruptedException {
         @SuppressWarnings("deprecation")
         Process process = Runtime.getRuntime().exec("dot -Tpng " + inputDot + " -o " + outputPng);
         process.waitFor();
     }
+
+    
 }

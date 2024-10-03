@@ -6,6 +6,7 @@ import java.util.*;
 
 import DAAR.tme2.Kmp;
 
+
 public class Benchmark3 {
 
     public static void main(String[] args) throws IOException {
@@ -14,8 +15,8 @@ public class Benchmark3 {
 
         // Liste des mots les plus utilisés en anglais
         List<String> commonWords = Arrays.asList(
-            "the", "of", "and", "to", "a", "in", "is", "it", "you", "that", "he", "was", "for", 
-            "on", "are", "with", "as", "I", "his", "they", "be"
+            "the", "of", "and", "to",  "it", "you", "that", "he", "was", "for", 
+            "on", "are", "with", "as",  "his", "they", "be"
         );
 
         // Récupérer tous les fichiers du répertoire
@@ -23,13 +24,27 @@ public class Benchmark3 {
                                     .filter(Files::isRegularFile)
                                     .toList());  // Convertir en ArrayList modifiable
 
-        // Limiter à un échantillon de 30 fichiers
+        // Limiter à un échantillon de 25 fichiers
         Collections.shuffle(allFiles); // Mélanger aléatoirement
-        List<Path> selectedFiles = allFiles.subList(0, Math.min(1, allFiles.size()));
+        List<Path> selectedFiles = allFiles.subList(0, Math.min(25, allFiles.size()));
 
         // Stocker les résultats du benchmark pour chaque algorithme
         List<Map<String, Double>> kmpResults = new ArrayList<>();
         List<Map<String, Double>> automateResults = new ArrayList<>();
+
+        // Parcourir chaque mot courant et pré-construire l'automate
+        Map<String, DFA> dfaCache = new HashMap<>(); // Cache pour les DFA
+        for (String word : commonWords) {
+            try {
+                // Construire une seule fois le DFA pour chaque mot
+                RegExTree regExTree = RegExParser.parse(word);
+                NFA nfa = RegExToNFA.convert(regExTree);
+                DFA dfa = NFAToDFA.convertToDFA(nfa, collectAlphabet(word));
+                dfaCache.put(word, dfa);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         // Parcourir les fichiers sélectionnés
         for (Path filePath : selectedFiles) {
@@ -47,18 +62,19 @@ public class Benchmark3 {
                 double kmpTime = benchmarkKMP(text, word);
                 kmpBenchmark.put(word, kmpTime);
 
-                // // Benchmark Automate
-                // double automateTime = benchmarkAutomate(text, word);
-                // automateBenchmark.put(word, automateTime);
+                // Benchmark Automate
+                DFA dfa = dfaCache.get(word);  // Récupérer le DFA pré-construit
+                double automateTime = benchmarkAutomate(text, dfa);
+                automateBenchmark.put(word, automateTime);
             }
 
             kmpResults.add(kmpBenchmark);
-            // automateResults.add(automateBenchmark);
+            automateResults.add(automateBenchmark);
         }
 
         // Sauvegarder les résultats dans des fichiers CSV pour analyse
         saveResultsToCSV("kmp_results.csv", kmpResults, commonWords, selectedFiles);
-        // saveResultsToCSV("automate_results.csv", automateResults, commonWords, selectedFiles);
+        saveResultsToCSV("automate_results.csv", automateResults, commonWords, selectedFiles);
     }
 
     // Méthode pour effectuer le benchmark avec KMP
@@ -70,31 +86,22 @@ public class Benchmark3 {
     }
 
     // Méthode pour effectuer le benchmark avec Automates
-    // public static double benchmarkAutomate(String text, String pattern) {
-    //     try {
-    //         RegExTree regExTree = RegExParser.parse(pattern); // Construire l'arbre RegEx
-    //         NFA nfa = RegExToNFA.convert(regExTree); // Convertir en NFA
-    //         DFA dfa = NFAToDFA.convertToDFA(nfa, collectAlphabet(pattern)); // Convertir en DFA
-
-    //         long startTime = System.nanoTime();
-    //         runAutomateSearch(dfa, text); // Effectuer la recherche avec l'automate
-    //         long endTime = System.nanoTime();
-    //         return (endTime - startTime) / 1e6; // Convertir en millisecondes
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //     }
-    //     return 0;
-    // }
+    public static double benchmarkAutomate(String text, DFA dfa) {
+        long startTime = System.nanoTime();
+        runAutomateSearch(dfa, text); // Effectuer la recherche avec l'automate
+        long endTime = System.nanoTime();
+        return (endTime - startTime) / 1e6; // Convertir en millisecondes
+    }
 
     // Fonction pour exécuter la recherche de motif avec un automate
-    // public static void runAutomateSearch(DFA dfa, String text) {
-    //     for (int i = 0; i < text.length(); i++) {
-    //         String substring = text.substring(i);
-    //         if (matches(substring, dfa)) {
-    //             // Vous pouvez aussi collecter les positions de correspondance ici
-    //         }
-    //     }
-    // }
+    public static void runAutomateSearch(DFA dfa, String text) {
+        for (int i = 0; i < text.length(); i++) {
+            String substring = text.substring(i);
+            if (matches(substring, dfa)) {
+                // Vous pouvez aussi collecter les positions de correspondance ici
+            }
+        }
+    }
 
     // Fonction pour vérifier si un mot correspond à l'automate DFA
     public static boolean matches(String input, DFA dfa) {
@@ -147,3 +154,4 @@ public class Benchmark3 {
         }
     }
 }
+
