@@ -1,0 +1,13 @@
+digraph DFA {
+rankdir=LR;
+node [shape=circle];
+start [shape=point];
+start -> 1831932724;
+1149319664 -> 2093631819 [label="g"];
+2093631819 -> 2074407503 [label="o"];
+558638686 -> 1149319664 [label="r"];
+1831932724 -> 1023892928 [label="S"];
+1023892928 -> 558638686 [label="a"];
+999966131 [shape=doublecircle];
+2074407503 -> 999966131 [label="n"];
+}
