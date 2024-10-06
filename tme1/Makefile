@@ -1,38 +1,43 @@
 # Variables
-JAVAC = javac
-JAVA = java
-SRC_DIR = RegEx
+SRC_DIR = 
 BIN_DIR = bin
+CLASSES = RegEx/*.java 
+MAIN_CLASS = DAAR.tme1.RegEx.RegEx
+BOOKS_DIR = Books
+JAVA = java
+JAVAC = javac
 
-# Liste des fichiers sources
-SOURCES := $(wildcard $(SRC_DIR)/*.java)
-# Liste des fichiers objets
-CLASSES := $(patsubst $(SRC_DIR)/%.java, $(BIN_DIR)/%.class, $(SOURCES))
+# Compilation
+all: $(BIN_DIR)/classes
 
-# Par défaut, compile tout le projet
-all: $(CLASSES)
+$(BIN_DIR)/classes: $(CLASSES)
+	mkdir -p $(BIN_DIR)
+	$(JAVAC) -d $(BIN_DIR) $(CLASSES)
 
-# Règle pour compiler les fichiers .java en fichiers .class
-$(BIN_DIR)/%.class: $(SRC_DIR)/%.java
-	@mkdir -p $(BIN_DIR)
-	$(JAVAC) -d $(BIN_DIR) $<
-
-# Exécuter une classe principale spécifique
-run: MAIN_CLASS=RegEx
-run: all
+# tester l'implementation automate 
+run_automate:
 	$(JAVA) -cp $(BIN_DIR) $(MAIN_CLASS)
 
-# Exécuter Main1
-run1: MAIN_CLASS=Benchmark1
-run1: run
+#tester l'implementation KMP
+run_kmp:
+	$(JAVA) -cp $(BIN_DIR) DAAR.tme1.RegEx.RegExKMP
 
-# Exécuter Main2
-run2: MAIN_CLASS=Benchmark1
-run2: run
+# Exécution du benchmark3
+run_benchmark3:
+	$(JAVA) -cp $(BIN_DIR) DAAR.tme1.RegEx.Benchmark3
 
-# Nettoyer les fichiers compilés
+# Exécution du benchmark2
+run_benchmark2:
+	$(JAVA) -cp $(BIN_DIR) DAAR.tme1.RegEx.Benchmark2
+
+# Exécution du benchmark1
+run_benchmark1:
+	$(JAVA) -cp $(BIN_DIR) DAAR.tme1.RegEx.Benchmark1
+
+# Nettoyage
 clean:
-	rm -rf $(BIN_DIR)/*.class
+	rm -rf $(BIN_DIR)
 
-# Indiquer que ces cibles ne sont pas des fichiers
-.PHONY: all run run1 run2 clean
+# Nettoyage des fichiers .class et .dot
+clean_all:
+	rm -rf $(BIN_DIR)/*.class *.dot *.png
